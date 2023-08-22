@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Define o formato XML e a codificação -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<!-- Informações do projeto -->
+	<modelVersion>4.0.0</modelVersion> <!-- Versão do modelo POM -->
+
+	<!-- Define o parent (pai) do projeto -->
+	<parent>
+		<groupId>org.springframework.boot</groupId> <!-- Grupo do Spring Boot -->
+		<artifactId>spring-boot-starter-parent</artifactId> <!-- Artifact ID do pai do Spring Boot -->
+		<version>3.1.2</version> <!-- Versão do Spring Boot -->
+		<relativePath/> <!-- Caminho relativo (vazio, pois está no repositório central) -->
+	</parent>
+
+	<!-- Metadados do projeto -->
+	<groupId>VHL</groupId> <!-- Grupo do projeto -->
+	<artifactId>biblioteca-api</artifactId> <!-- Artifact ID do projeto -->
+	<version>0.0.1-SNAPSHOT</version> <!-- Versão do projeto -->
+	<name>Gerenciador de Biblioteca API</name> <!-- Nome do projeto -->
+	<description>...</description> <!-- Descrição do projeto -->
+
+	<!-- Propriedades do projeto -->
+	<properties>
+		<java.version>17</java.version> <!-- Versão do Java -->
+	</properties>
+
+	<!-- Dependências do projeto -->
+	<dependencies>
+		<!-- Dependência para Spring Boot Data JPA -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- Dependência para Spring Boot Web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!--Dependência para simplificar comunicação de REST -->
+		<dependency>
+		    <groupId>javax.ws.rs</groupId>
+		    <artifactId>javax.ws.rs-api</artifactId>
+		    <version>2.1.1</version>
+		</dependency>
+
+		<!-- Dependência para banco de dados MariaDB (runtime) -->
+		<dependency>
+		    <groupId>org.mariadb.jdbc</groupId>
+		    <artifactId>mariadb-java-client</artifactId>
+		</dependency>
+
+		<!-- Dependência para Spring Boot Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Dependência para JPA -->
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>javax.persistence-api</artifactId>
+			<version>2.2</version>
+		</dependency>
+	</dependencies>
+
+	<!-- Configuração do build -->
+	<build>
+		<plugins>
+			<!-- Plugin do Spring Boot Maven -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+		<resources>
+		    <!-- Configuração dos recursos do projeto -->
+		    <resource>
+		        <directory>src/main/resources</directory>
+		        <filtering>true</filtering>
+		    </resource>
+		</resources>
+	</build>
+</project>
