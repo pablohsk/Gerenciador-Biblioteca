@@ -2,21 +2,25 @@
 package VHL.bibliotecaapi.modelos;
 
 //Importações
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.Set;
 
 //Declaração de Classe
 @Entity
+@Table(name = "TB_USUARIO")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
-
+    @Column(name = "NOME")
     private String nome;
+    @Column(name = "EMAIL")
     private String email;
+    @OneToMany(mappedBy = "usuario")
+    private Set<Emprestimo> emprestimo;
 
     // Construtores
     public Usuario() {
@@ -56,5 +60,13 @@ public class Usuario {
     public void setEmail(String email) {
 
         this.email = email;
+    }
+
+    public Set<Emprestimo> getEmprestimo() {
+        return emprestimo;
+    }
+
+    public void setEmprestimo(Set<Emprestimo> emprestimo) {
+        this.emprestimo = emprestimo;
     }
 }
