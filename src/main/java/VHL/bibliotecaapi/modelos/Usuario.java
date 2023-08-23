@@ -3,8 +3,8 @@ package VHL.bibliotecaapi.modelos;
 
 //Importações
 import jakarta.persistence.*;
-import java.util.List;
-import VHL.bibliotecaapi.modelos.Emprestimo;
+
+import java.util.Set;
 
 //Declaração de Classe
 @Entity
@@ -19,8 +19,8 @@ public class Usuario {
     private String nome;
     @Column(name = "EMAIL")
     private String email;
-    @OneToOne(mappedBy = "usuario")
-    private Emprestimo emprestimo;
+    @OneToMany(mappedBy = "usuario")
+    private Set<Emprestimo> emprestimo;
 
     // Construtores
     public Usuario() {
@@ -62,13 +62,11 @@ public class Usuario {
         this.email = email;
     }
 
-    public Emprestimo getEmprestimo() {
-
+    public Set<Emprestimo> getEmprestimo() {
         return emprestimo;
     }
 
-    public void setEmprestimo(Emprestimo emprestimo) {
-
+    public void setEmprestimo(Set<Emprestimo> emprestimo) {
         this.emprestimo = emprestimo;
     }
 }
