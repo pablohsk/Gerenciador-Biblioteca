@@ -2,11 +2,14 @@ package VHL.bibliotecaapi.servico;
 
 import VHL.bibliotecaapi.modelos.Livro;
 import VHL.bibliotecaapi.erros.BadRequestError;
+import VHL.bibliotecaapi.modelos.Usuario;
 import VHL.bibliotecaapi.repositorio.LivroRepositorio;
 import VHL.bibliotecaapi.repositorio.UsuarioRepositorio;
 import org.springframework.stereotype.Service;
 import VHL.bibliotecaapi.modelos.Emprestimo;
 import VHL.bibliotecaapi.repositorio.EmprestimoRepositorio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 
@@ -16,6 +19,7 @@ public class EmprestimoServico {
     private final EmprestimoRepositorio emprestimoRepositorio;
     private final UsuarioRepositorio usuarioRepositorio;
     private final LivroRepositorio livroRepositorio;
+    private final Logger logger = LoggerFactory.getLogger(EmprestimoServico.class);
 
     public EmprestimoServico(EmprestimoRepositorio emprestimoRepositorio, UsuarioRepositorio usuarioRepositorio, LivroRepositorio livroRepositorio) {
         this.emprestimoRepositorio = emprestimoRepositorio;
@@ -23,26 +27,32 @@ public class EmprestimoServico {
         this.livroRepositorio = livroRepositorio;
     }
 
-    public void atualizaStatusLivro(Long id){
-
+    public void atualizaStatusLivro(Long id) {
+        logger.info("Atualizando status do livro para indisponível, Livro ID: {}", id);
         Livro livroEmprestado = livroRepositorio.findLivroById(id);
         livroEmprestado.setDisponivel(false);
         livroRepositorio.save(livroEmprestado);
     }
+
     public Emprestimo realizarEmprestimo(Emprestimo emprestimo) {
-        if (emprestimoRepositorio.getEmprestimosByUsuario_Id(emprestimo.getUsuario().getId()).size() >= 2) {
+        Usuario usuario = emprestimo.getUsuario();
+        Livro livro = emprestimo.getLivro();
+
+        if (emprestimoRepositorio.getEmprestimosByUsuario_Id(usuario.getId()).size() >= 2) {
             throw new BadRequestError("Usuário já possui 2 empréstimos ativos e não consegue mais pegar nenhum livro emprestado.");
         }
 
-        // Defina outras verificações, como se o livro está disponível, etc.
-        if (emprestimoRepositorio.getEmprestimosByLivro_Id(emprestimo.getLivro().getId()).size() >= 1) {
+        if (emprestimoRepositorio.getEmprestimosByLivro_Id(livro.getId()).size() >= 1) {
             throw new BadRequestError("O livro não está disponível para empréstimo.");
         }
 
-        // Realizar o empréstimo
         emprestimo.setDataEmprestimo(LocalDate.now());
         emprestimo.setDataDevolucao(emprestimo.getDataEmprestimo().plusDays(7)); // 7 dias de empréstimo
-        atualizaStatusLivro(emprestimo.getLivro().getId());
+        atualizaStatusLivro(livro.getId());
+
+        logger.info("Realizando empréstimo para o usuário de ID: {} do livro de ID {}",
+                usuario.getId(), livro.getId());
+
         return emprestimoRepositorio.save(emprestimo);
     }
 
@@ -50,8 +60,7 @@ public class EmprestimoServico {
         Emprestimo emprestimoExistente = emprestimoRepositorio.findById(id)
                 .orElseThrow(() -> new BadRequestError("Empréstimo não encontrado."));
 
-        // Implemente a lógica para atualizar o empréstimo, se necessário
-        // Por exemplo, você pode permitir a extensão da data de devolução
+        logger.info("Atualizando empréstimo de ID: {}. Novos dados: {}", id, emprestimoAtualizado);
 
         return emprestimoRepositorio.save(emprestimoAtualizado);
     }
@@ -60,12 +69,14 @@ public class EmprestimoServico {
         Emprestimo emprestimo = emprestimoRepositorio.findById(id)
                 .orElseThrow(() -> new BadRequestError("Empréstimo não encontrado."));
 
+        Livro livro = emprestimo.getLivro();
+        logger.info("Devolvendo livro com ID de empréstimo: {}. Livro ID: {}", id, livro.getId());
+
         if (emprestimo.getDataDevolucao().isBefore(LocalDate.now())) {
             // Implemente a lógica para calcular multas ou outras ações se a devolução estiver atrasada
         }
 
-        emprestimo.getLivro().setDisponivel(true); // Libera o livro para empréstimo
-
+        livro.setDisponivel(true); // Libera o livro para empréstimo
         emprestimoRepositorio.delete(emprestimo);
     }
 }
