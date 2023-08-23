@@ -2,24 +2,27 @@
 package VHL.bibliotecaapi.modelos;
 
 //Importações
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 //Declaração de classe
 @Entity
+@Table(name = "TB_EMPRESTIMO")
 public class Emprestimo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
-
+    @OneToOne
+    @JoinColumn(name = "LIVRO_ID", referencedColumnName = "ID")
     private Livro livro; // Referência ao livro emprestado
-    private Usuario usuario; // Referência ao usuário que realizou o empréstimo 
+    @OneToOne
+    @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")
+    private Usuario usuario; // Referência ao usuário que realizou o empréstimo
+    @Column(name = "DT_EMPRESTIMO")
     private LocalDate dataEmprestimo; // Data em que o empréstimo foi feito
+    @Column(name = "DT_DEVOLUCAO")
     private LocalDate dataDevolucao; // Data prevista para a devolução
 
     // Construtores

@@ -1,35 +1,32 @@
 package VHL.bibliotecaapi.servico;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import VHL.bibliotecaapi.modelos.Usuario;
 import VHL.bibliotecaapi.repositorio.UsuarioRepositorio;
-
+import org.springframework.http.HttpStatus; 
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsuarioServico {
 
-    @Autowired
-    private UsuarioRepositorio usuarioRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio; // Injeta o repositório
 
-    // Retorna uma lista de todos os usuários
-    public List<Usuario> listarTodosUsuarios() {
+    public UsuarioServico(UsuarioRepositorio usuarioRepositorio) {
 
-        return usuarioRepositorio.findAll();
+        this.usuarioRepositorio = usuarioRepositorio;
     }
 
-    // Busca um usuário pelo ID
-    public Optional<Usuario> buscarUsuarioPorId(Long id) {
-
-        return usuarioRepositorio.findById(id);
-    }
-
-    // Busca um usuário pelo nome
+    // Busca usuários por nome
     public List<Usuario> buscarUsuariosPorNome(String nome) {
 
         return usuarioRepositorio.findByNome(nome);
+    }
+
+    // Busca usuários por email
+    public List<Usuario> buscarUsuariosPorEmail(String email) {
+
+        return usuarioRepositorio.findByEmail(email);
     }
 
     // Adiciona um novo usuário
@@ -38,15 +35,19 @@ public class UsuarioServico {
         return usuarioRepositorio.save(usuario);
     }
 
-    // Atualiza informações de um usuário
-    public Usuario atualizarUsuario(Usuario usuario) {
+    // Atualiza informações de um usuário pelo ID
+    public Usuario atualizarUsuario(Usuario usuario, Long id) {
 
-        return usuarioRepositorio.save(usuario);
+        if (usuarioRepositorio.existsById(id)) {
+            usuario.setId(id);
+            return usuarioRepositorio.save(usuario);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado");
+        }
     }
 
     // Exclui um usuário pelo ID
     public void excluirUsuario(Long id) {
-
         usuarioRepositorio.deleteById(id);
     }
 }

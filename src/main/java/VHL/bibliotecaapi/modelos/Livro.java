@@ -2,22 +2,26 @@
 package VHL.bibliotecaapi.modelos;
 
 // Importações
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import jakarta.persistence.*;
 
 //Declaração de classe
 @Entity
+@Table(name = "TB_LIVRO")
 public class Livro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
+    @Column(name = "TITULO")
     private String titulo;
+    @Column(name = "AUTOR")
     private String autor;
+    @Column(name = "DISPONIVEL")
     private boolean disponivel;
-
+    @OneToOne(mappedBy = "livro")
+    private Emprestimo emprestimo;
     // Construtores, getters e setters
+
     // Construtor padrão (necessário para desserialização JSON)
     public Livro() {
     }
@@ -48,11 +52,20 @@ public class Livro {
 
     public String getAutor() {
 
-        return autor;
+       return autor;
     }
 
     public void setAutor(String autor) {
 
         this.autor = autor;
-    }    
+    }
+
+    public boolean isDisponivel() {
+
+        return disponivel;
+    }
+    public void setDisponivel(boolean disponivel){
+
+        this.disponivel = disponivel;
+    }
 }

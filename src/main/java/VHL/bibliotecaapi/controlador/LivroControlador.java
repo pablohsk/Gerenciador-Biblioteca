@@ -1,55 +1,60 @@
 package VHL.bibliotecaapi.controlador;
 
-import VHL.bibliotecaapi.modelos.Livro;
+import VHL.bibliotecaapi.servico.LivroServico;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
-import VHL.bibliotecaapi.repositorio.*;
+
+import VHL.bibliotecaapi.modelos.*;
 
 @RestController
 @RequestMapping("/livros")
 public class LivroControlador {
 
-    @Autowired
-    private LivroRepositorio livroRepositorio;
 
-    @GetMapping("/porTitulo")
-    public List<Livro> getLivrosPorTitulo(@RequestParam String titulo) {
-        return livroRepositorio.findByTitulo(titulo);
+    private final LivroServico livroServico; // Injeta o serviço
+
+    public LivroControlador(LivroServico livroServico) {
+
+        this.livroServico = livroServico;
     }
 
-    @GetMapping("/porAutor")
-    public List<Livro> getLivrosPorAutor(@RequestParam String autor) {
-        return livroRepositorio.findByAutor(autor);
+    @GetMapping("/porTitulo/{titulo}")
+    public List<Livro> getLivrosPorTitulo(@PathVariable String titulo) {
+
+        return livroServico.buscarLivrosPorTitulo(titulo); // Usa o serviço para buscar livros por título
+    }
+
+    @GetMapping("/porAutor/{autor}")
+    public List<Livro> getLivrosPorAutor(@PathVariable String autor) {
+
+        return livroServico.buscarLivrosPorAutor(autor); // Usa o serviço para buscar livros por autor
     }
 
     @PostMapping
     public Livro adicionarLivro(@RequestBody Livro livro) {
-        return livroRepositorio.save(livro);
+
+        return livroServico.adicionarLivro(livro); // Usa o serviço para adicionar um livro
     }
+
+
+    //lalala
 
     @PutMapping("/{id}")
     public Livro atualizarLivro(@RequestBody Livro livroAtualizado, @PathVariable Long id) {
-        if (livroRepositorio.existsById(id)) {
-            livroAtualizado.setId(id);
-            return livroRepositorio.save(livroAtualizado);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado");
-        }
+
+        return livroServico.atualizarLivro(livroAtualizado); // Usa o serviço para atualizar um livro
     }
 
     @DeleteMapping("/{id}")
     public void excluirLivro(@PathVariable Long id) {
-        livroRepositorio.deleteById(id);
+
+        livroServico.excluirLivro(id); // Usa o serviço para excluir um livro
     }
 }
