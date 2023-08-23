@@ -1,15 +1,18 @@
 package VHL.bibliotecaapi.controlador;
 
+import VHL.bibliotecaapi.modelos.LivroDTO;
+import VHL.bibliotecaapi.modelos.UsuarioDTO;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable; 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import VHL.bibliotecaapi.servico.UsuarioServico;
 import VHL.bibliotecaapi.modelos.Usuario;
 
@@ -23,24 +26,30 @@ public class UsuarioControlador {
         this.usuarioServico = usuarioServico;
     }
 
-    @GetMapping("/porNome")
-    public List<Usuario> getUsuariosPorNome(@RequestParam String nome) {
-        return usuarioServico.buscarUsuariosPorNome(nome); // Usa o serviço para buscar usuario por nome
+    @GetMapping("/porNome/{nome}")
+    public List<UsuarioDTO> getUsuariosPorNome(@PathVariable String nome) {
+        List<Usuario> usuarios = usuarioServico.buscarUsuariosPorNome(nome);
+        List<UsuarioDTO> usuarioDTOS = usuarios.stream().map(UsuarioDTO::new).collect(Collectors.toList());
+        return usuarioDTOS;
     }
 
-    @GetMapping("/porEmail")
-    public List<Usuario> getUsuariosPorEmail(@RequestParam String email) {
-        return usuarioServico.buscarUsuariosPorEmail(email); // Usa o serviço para buscar usuário por email
+    @GetMapping("/porEmail/{email}")
+    public List<UsuarioDTO> getUsuariosPorEmail(@PathVariable String email) {
+        List<Usuario> usuarios = usuarioServico.buscarUsuariosPorEmail(email);
+        List<UsuarioDTO> usuarioDTOS = usuarios.stream().map(UsuarioDTO::new).collect(Collectors.toList());
+        return usuarioDTOS;
     }
-    
+
     @PostMapping
-    public Usuario adicionarUsuario(@RequestBody Usuario usuario) {
-        return usuarioServico.adicionarUsuario(usuario); // Usa o serviço para adicionar usuário
+    public UsuarioDTO adicionarUsuario(@RequestBody Usuario usuario) {
+        Usuario usuarioAdicionado = usuarioServico.adicionarUsuario(usuario);
+        return new UsuarioDTO(usuarioAdicionado);
     }
 
     @PutMapping("/{id}")
-    public Usuario atualizarUsuario(@RequestBody Usuario usuarioAtualizado, @PathVariable Long id) {
-        return usuarioServico.atualizarUsuario(usuarioAtualizado, id); // Usa o serviço para atualizar usuário
+    public UsuarioDTO atualizarUsuario(@RequestBody Usuario usuarioAtualizado, @PathVariable Long id) {
+        Usuario usuario = usuarioServico.atualizarUsuario(usuarioAtualizado, id);
+        return new UsuarioDTO(usuario);
     }
 
     @DeleteMapping("/{id}")
