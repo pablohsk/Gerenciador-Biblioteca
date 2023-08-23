@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import VHL.bibliotecaapi.servico.LivroServico;
 import VHL.bibliotecaapi.modelos.*;
 
@@ -24,23 +26,29 @@ public class LivroControlador {
     }
 
     @GetMapping("/porTitulo/{titulo}")
-    public List<Livro> getLivrosPorTitulo(@PathVariable String titulo) {
-        return livroServico.buscarLivrosPorTitulo(titulo); // Usa o serviço para buscar livros por título
+    public List<LivroDTO> getLivrosPorTitulo(@PathVariable String titulo) {
+        List<Livro> livros = livroServico.buscarLivrosPorTitulo(titulo);
+        List<LivroDTO> livrosDTO =  livros.stream().map(LivroDTO::new).collect(Collectors.toList()); // Usa o serviço para buscar livros por título
+        return livrosDTO;
     }
 
     @GetMapping("/porAutor/{autor}")
-    public List<Livro> getLivrosPorAutor(@PathVariable String autor) {
-        return livroServico.buscarLivrosPorAutor(autor); // Usa o serviço para buscar livros por autor
+    public List<LivroDTO> getLivrosPorAutor(@PathVariable String autor) {
+        List<Livro> livros = livroServico.buscarLivrosPorAutor(autor);
+        List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
+        return livrosDTO;
     }
 
     @PostMapping
-    public Livro adicionarLivro(@RequestBody Livro livro) {
-        return livroServico.adicionarLivro(livro); // Usa o serviço para adicionar um livro
+    public LivroDTO adicionarLivro(@RequestBody Livro livro) {
+        Livro livroAdicionado = livroServico.adicionarLivro(livro);
+        return new LivroDTO(livroAdicionado);
     }
 
     @PutMapping("/{id}")
-    public Livro atualizarLivro(@RequestBody Livro livroAtualizado, @PathVariable Long id) {
-        return livroServico.atualizarLivro(livroAtualizado); // Usa o serviço para atualizar um livro
+    public LivroDTO atualizarLivro(@RequestBody Livro livroAtualizado, @PathVariable Long id) {
+        Livro livro = livroServico.atualizarLivro(livroAtualizado);
+        return new LivroDTO(livro);
     }
 
     @DeleteMapping("/{id}")
