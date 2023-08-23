@@ -1,6 +1,7 @@
 package VHL.bibliotecaapi.controlador;
 
 import VHL.bibliotecaapi.modelos.EmprestimoDTO;
+import VHL.bibliotecaapi.modelos.Usuario;
 import org.springframework.web.bind.annotation.*;
 import VHL.bibliotecaapi.servico.EmprestimoServico;
 import VHL.bibliotecaapi.modelos.Emprestimo;
@@ -30,7 +31,7 @@ public class EmprestimoControlador {
     public EmprestimoDTO atualizarEmprestimo(@RequestBody Emprestimo emprestimoAtualizado, @PathVariable Long id) {
 
         logger.info("Requisição para atualizar um empréstimo com ID {}: {}", id, emprestimoAtualizado);
-        Emprestimo emprestimo = emprestimoServico.atualizarEmprestimo(emprestimoAtualizado, id);
+        Emprestimo emprestimo = emprestimoServico.atualizaEmprestimo(emprestimoAtualizado, id);
         return new EmprestimoDTO(emprestimo);
     }
 

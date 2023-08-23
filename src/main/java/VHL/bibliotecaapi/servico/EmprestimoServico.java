@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class EmprestimoServico {
@@ -56,11 +57,14 @@ public class EmprestimoServico {
         return emprestimoRepositorio.save(emprestimo);
     }
 
-    public Emprestimo atualizarEmprestimo(Emprestimo emprestimoAtualizado, Long id) {
+    public Emprestimo atualizaEmprestimo(Emprestimo emprestimoAtualizado, Long id) {
         Emprestimo emprestimoExistente = emprestimoRepositorio.findById(id)
                 .orElseThrow(() -> new BadRequestError("Empréstimo não encontrado."));
 
-        logger.info("Atualizando empréstimo de ID: {}. Novos dados: {}", id, emprestimoAtualizado);
+        emprestimoAtualizado.setDataEmprestimo(LocalDate.now());
+        emprestimoAtualizado.setDataDevolucao(emprestimoAtualizado.getDataEmprestimo().plusDays(7)); // 7 dias de empréstimo
+
+        logger.info("Atualizando empréstimo de ID: {}. Nova data de devolução: {}", id, emprestimoAtualizado.getDataDevolucao());
 
         return emprestimoRepositorio.save(emprestimoAtualizado);
     }
@@ -72,8 +76,15 @@ public class EmprestimoServico {
         Livro livro = emprestimo.getLivro();
         logger.info("Devolvendo livro com ID de empréstimo: {}. Livro ID: {}", id, livro.getId());
 
-        if (emprestimo.getDataDevolucao().isBefore(LocalDate.now())) {
-            // Implemente a lógica para calcular multas ou outras ações se a devolução estiver atrasada
+        LocalDate dataDevolucaoPrevista = emprestimo.getDataDevolucao();
+        LocalDate dataDevolucaoReal = LocalDate.now();
+
+        if (dataDevolucaoReal.isAfter(dataDevolucaoPrevista)) {
+            long diasAtraso = ChronoUnit.DAYS.between(dataDevolucaoPrevista, dataDevolucaoReal);
+            double multaPorDia = 2.0; // Valor da multa por dia de atraso (exemplo)
+            double multaTotal = diasAtraso * multaPorDia;
+            String mensagem = String.format("Devolução com atraso de %d dias. Multa a ser paga: R$ %.2f", diasAtraso, multaTotal);
+            logger.info(mensagem);
         }
 
         livro.setDisponivel(true); // Libera o livro para empréstimo
