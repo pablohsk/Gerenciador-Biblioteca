@@ -1,18 +1,22 @@
 package VHL.bibliotecaapi.servico;
 
-import VHL.bibliotecaapi.modelos.Livro;
+import VHL.bibliotecaapi.modelos.*;
 import VHL.bibliotecaapi.erros.BadRequestError;
-import VHL.bibliotecaapi.modelos.Usuario;
 import VHL.bibliotecaapi.repositorio.LivroRepositorio;
 import VHL.bibliotecaapi.repositorio.UsuarioRepositorio;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import VHL.bibliotecaapi.modelos.Emprestimo;
 import VHL.bibliotecaapi.repositorio.EmprestimoRepositorio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmprestimoServico {
@@ -35,7 +39,7 @@ public class EmprestimoServico {
         livroRepositorio.save(livroEmprestado);
     }
 
-    public Emprestimo realizarEmprestimo(Emprestimo emprestimo) {
+    public ResponseEntity<?> realizarEmprestimo(Emprestimo emprestimo) {
         Usuario usuario = emprestimo.getUsuario();
         Livro livro = emprestimo.getLivro();
 
@@ -47,18 +51,35 @@ public class EmprestimoServico {
             throw new BadRequestError("O livro não está disponível para empréstimo.");
         }
 
+        // Realizar o empréstimo
         emprestimo.setDataEmprestimo(LocalDate.now());
-        emprestimo.setDataDevolucao(emprestimo.getDataEmprestimo().plusDays(7)); // 7 dias de empréstimo
-        atualizaStatusLivro(livro.getId());
+        emprestimo.setDataDevolucao(emprestimo.getDataEmprestimo().plusDays(7)); // Exemplo: 7 dias de empréstimo
 
-        logger.info("Realizando empréstimo para o usuário de ID: {} do livro de ID {}",
-                usuario.getId(), livro.getId());
-
-        return emprestimoRepositorio.save(emprestimo);
+        return constroiMensagemSucessoRetorno(constroiObjetoRetorno(emprestimoRepositorio.save(emprestimo)), "O livro foi emprestado com sucesso!", HttpStatus.OK);
     }
 
-    public Emprestimo atualizaEmprestimo(Emprestimo emprestimoAtualizado, Long id) {
-        Emprestimo emprestimoExistente = emprestimoRepositorio.findById(id)
+    private Emprestimo constroiObjetoRetorno (Emprestimo obj){
+        Emprestimo emprestimoRetorno = new Emprestimo();
+        emprestimoRetorno = obj;
+        Livro livroRetorno = livroRepositorio.findLivroById(obj.getLivro().getId());
+        emprestimoRetorno.setLivro(livroRetorno);
+        return emprestimoRetorno;
+    }
+
+    private ResponseEntity<?> constroiMensagemSucessoRetorno(Emprestimo object, String mensagemSucesso, HttpStatus httpStatus){
+        MensagemSucessoDTO mensagemSucessoDTO = new MensagemSucessoDTO(mensagemSucesso, httpStatus, object);
+        return ResponseEntity.status(httpStatus).contentType(MediaType.APPLICATION_JSON).body(mensagemSucessoDTO);
+    }
+
+    public List<EmprestimoDTO> listarTodosEmprestimos() {
+        List<Emprestimo> emprestimos = emprestimoRepositorio.findAll();
+        return emprestimos.stream()
+                .map(EmprestimoDTO::new) // Supondo que você tenha um construtor em EmprestimoDTO que aceita Emprestimo
+                .collect(Collectors.toList());
+    }
+
+    public Emprestimo atualizarEmprestimo(Emprestimo emprestimoAtualizado, Long id) {
+        emprestimoRepositorio.findById(id)
                 .orElseThrow(() -> new BadRequestError("Empréstimo não encontrado."));
 
         emprestimoAtualizado.setDataEmprestimo(LocalDate.now());
