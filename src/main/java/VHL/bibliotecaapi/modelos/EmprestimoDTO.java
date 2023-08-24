@@ -24,6 +24,11 @@ public class EmprestimoDTO {
         return id;
     }
 
+    public Long setId(long id) {
+
+        return id;
+    }
+
     public LivroDTO getLivro() {
 
         return livro;
